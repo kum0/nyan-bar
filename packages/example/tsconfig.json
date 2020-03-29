@@ -8,7 +8,6 @@
     "types": [],
     "lib": ["ESNext", "dom"],
     "allowJs": false,
-    "resolveJsonModule": true,
     "esModuleInterop": true,
     "declaration": true,
     "strict": true,

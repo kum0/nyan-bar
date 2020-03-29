@@ -1,4 +1,5 @@
-import { NyanOption } from './api';
+import { NyanOption } from './interface';
+import nyanImg from './assets/nyan.png';
 
 export class NyanBar {
   static New(opt: NyanOption): NyanBar {
@@ -6,12 +7,12 @@ export class NyanBar {
   }
 
   private readonly _imgRate = 623 / 320;
-  private readonly _imgSrc = 'assets/nyan.png';
-  private readonly _rainDiff = 16;
+  private _rainDiff = 16;
   private _option: NyanOption = {
     width: 1000,
     height: 64
   };
+  private _imgWH = { w: 0, h: 0 };
   private _img: HTMLImageElement = {} as HTMLImageElement;
   private _cvs: HTMLCanvasElement = {} as HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D = {} as CanvasRenderingContext2D;
@@ -19,12 +20,12 @@ export class NyanBar {
   private _rainbowData: ImageData = {} as ImageData;
   private _catData: ImageData = {} as ImageData;
   private _i = 0;
+  private _total = 0;
 
   constructor(opt: NyanOption) {
     this._option = opt;
-    this._i = opt.len || 0;
-    this._img = new Image(opt.height * this._imgRate, opt.height);
-    this._img.src = this._imgSrc;
+    this._img = new Image();
+    this._img.src = nyanImg;
   }
 
   create(e: HTMLElement, target: HTMLElement) {
@@ -34,6 +35,8 @@ export class NyanBar {
 
       this._cvs.width = this._option.width;
       this._cvs.height = this._option.height;
+
+      this._imgWH = { w: this._option.height * this._imgRate, h: this._option.height };
       e.appendChild(this._cvs);
 
       this._parseImg();
@@ -41,23 +44,31 @@ export class NyanBar {
       target.onscroll = e => {
         if (e.target) {
           const { scrollTop, scrollHeight, clientHeight } = e.target as Element;
-          const count = scrollTop / (scrollHeight - clientHeight);
+          let count = scrollTop / (scrollHeight - clientHeight);
 
-          this._i = count >> 0;
-          this._draw();
+          count = Math.round(this._total * count);
+
+          if (this._i !== count) {
+            this._i = count;
+            this._draw();
+          }
         }
       };
     };
   }
 
   private _parseImg() {
-    this._ctx.drawImage(this._img, 0, 0);
+    this._ctx.drawImage(this._img, 0, 0, this._img.width, this._img.height, 0, 0, this._imgWH.w, this._imgWH.h);
 
-    const imgData = this._ctx.getImageData(0, 0, this._img.width, this._img.height);
+    const imgData = this._ctx.getImageData(0, 0, this._imgWH.w, this._imgWH.h);
     this._rainbowW = this._rainbowWidth(imgData);
 
-    this._rainbowData = this._ctx.getImageData(0, 0, this._rainbowW, this._img.height);
-    this._catData = this._ctx.getImageData(this._rainbowW, 0, this._img.width, this._img.height);
+    this._rainbowData = this._ctx.getImageData(0, 0, this._rainbowW, this._imgWH.h);
+
+    this._rainDiff = this._rainbowDiff(this._rainbowData);
+    this._catData = this._ctx.getImageData(this._rainbowW, 0, this._imgWH.w, this._imgWH.h);
+
+    this._total = ((this._option.width - (this._imgWH.w - this._rainbowW)) / this._rainbowW) >> 0;
   }
 
   private _rainbowWidth(img: ImageData): number {
@@ -67,6 +78,18 @@ export class NyanBar {
       }
     }
     return 0;
+  }
+
+  private _rainbowDiff(img: ImageData): number {
+    const r = img.width * 4;
+    let i = 0,
+      idx = 0;
+    while (img.data[idx] === 0) {
+      i++;
+      idx = r * i;
+    }
+
+    return i;
   }
 
   private _draw() {
@@ -82,15 +105,15 @@ export class NyanBar {
 
     if (this._i % 2 === 0) {
       while (x--) {
-        this._ctx.putImageData(this._rainbowData, x * this._rainbowW, x % 2 === 0 ? this._rainDiff : 0);
+        this._ctx.putImageData(this._rainbowData, x * this._rainbowW, x % 2 === 0 ? -this._rainDiff : 0);
       }
     } else {
       while (x--) {
-        this._ctx.putImageData(this._rainbowData, x * this._rainbowW, x % 2 === 0 ? 0 : this._rainDiff);
+        this._ctx.putImageData(this._rainbowData, x * this._rainbowW, x % 2 === 0 ? 0 : -this._rainDiff);
       }
     }
 
-    if (this._i * this._rainbowW + this._img.width >= this._cvs.width) {
+    if (this._i * this._rainbowW + this._imgWH.w >= this._cvs.width) {
       this._i = -1;
     }
   }
