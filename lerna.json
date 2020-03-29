@@ -5,7 +5,7 @@
   "npmClient": "yarn",
   "command": {
     "publish": {
-      "ignoreChanges": ["example", "*.md"]
+      "ignoreChanges": ["packages/example", "*.md"]
     }
   }
 }
