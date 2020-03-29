@@ -6,7 +6,7 @@
     "nyan"
   ],
   "author": "rx-78-2 <zy.hua1122@qq.com>",
-  "homepage": "https://github.com/kum0/nyan-bar",
+  "homepage": "https://github.com/rx-78-2-kum0/nyan-bar",
   "license": "ISC",
   "main": "./dist/index.js",
   "directories": {
@@ -37,5 +37,6 @@
   },
   "dependencies": {
     "url-loader": "^4.0.0"
-  }
+  },
+  "gitHead": "29287684e1307844fc0e01dde2e3396078d10da5"
 }

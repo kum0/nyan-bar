@@ -7,7 +7,7 @@ export class NyanBar {
   }
 
   private readonly _imgRate = 623 / 320;
-  private _rainDiff = 16;
+  private _rainDiff = 0;
   private _option: NyanOption = {
     width: 1000,
     height: 64
