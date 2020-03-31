@@ -1,6 +1,6 @@
-# nyan-mode README
+# nyan-mode-vsc README
 
-This is the README for your extension "nyan-mode". After writing up a brief description, we recommend including the following sections.
+This is the README for your extension "nyan-mode-vsc". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
