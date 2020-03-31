@@ -1,9 +1,9 @@
 import { NyanOption } from './interface';
 import nyanImg from './assets/nyan.png';
 
-export class NyanBar {
-  static New(opt: NyanOption): NyanBar {
-    return new NyanBar(opt);
+export class NyanMode {
+  static New(opt: NyanOption): NyanMode {
+    return new NyanMode(opt);
   }
 
   private readonly _imgRate = 623 / 320;
