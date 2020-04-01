@@ -41,11 +41,26 @@ export class NyanMode {
 
       this._parseImg();
 
+      // target.onscroll = this._debounce(
+      //   e => () => {
+      //     if (e.target) {
+      //       const { scrollTop, scrollHeight, clientHeight } = e.target as Element;
+      //       let count = scrollTop / (scrollHeight - clientHeight);
+      //       count = Math.round(this._total * count);
+
+      //       if (this._i !== count) {
+      //         this._i = count;
+      //         this._draw();
+      //       }
+      //     }
+      //   },
+      //   0
+      // );
+
       target.onscroll = e => {
         if (e.target) {
           const { scrollTop, scrollHeight, clientHeight } = e.target as Element;
           let count = scrollTop / (scrollHeight - clientHeight);
-
           count = Math.round(this._total * count);
 
           if (this._i !== count) {
@@ -57,6 +72,18 @@ export class NyanMode {
     };
   }
 
+  // private _debounce(fn: (e: Event) => () => void, delay: number) {
+  //   let timer: null | number = null;
+  //   return function(e: Event) {
+  //     if (timer) {
+  //       clearTimeout(timer);
+  //       timer = setTimeout(fn(e), delay);
+  //     } else {
+  //       timer = setTimeout(fn(e), delay);
+  //     }
+  //   };
+  // }
+
   private _parseImg() {
     this._ctx.drawImage(this._img, 0, 0, this._img.width, this._img.height, 0, 0, this._imgWH.w, this._imgWH.h);
 
@@ -66,9 +93,11 @@ export class NyanMode {
     this._rainbowData = this._ctx.getImageData(0, 0, this._rainbowW, this._imgWH.h);
 
     this._rainDiff = this._rainbowDiff(this._rainbowData);
-    this._catData = this._ctx.getImageData(this._rainbowW, 0, this._imgWH.w, this._imgWH.h);
+    this._catData = this._ctx.getImageData(this._rainbowW + 1, 0, this._imgWH.w, this._imgWH.h);
 
     this._total = ((this._option.width - (this._imgWH.w - this._rainbowW)) / this._rainbowW) >> 0;
+
+    this._draw();
   }
 
   private _rainbowWidth(img: ImageData): number {
@@ -101,9 +130,32 @@ export class NyanMode {
     this._ctx.clearRect(0, 0, this._cvs.width, this._cvs.height);
 
     this._ctx.putImageData(this._catData, this._rainbowW * this._i, 0);
+
+    if (this._option.wavy) {
+      this._wavyRender();
+    } else {
+      this._straightRender();
+    }
+
+    this._ctx.translate(0.5, 0.5);
+
+    if (this._i * this._rainbowW + this._imgWH.w >= this._cvs.width) {
+      this._i = -1;
+    }
+  }
+
+  private _straightRender() {
     let x = this._i;
 
-    if (this._i % 2 === 0) {
+    while (x--) {
+      this._ctx.putImageData(this._rainbowData, x * this._rainbowW, -this._rainDiff);
+    }
+  }
+
+  private _wavyRender() {
+    let x = this._i;
+
+    if ((this._i & 1) === 0) {
       while (x--) {
         this._ctx.putImageData(this._rainbowData, x * this._rainbowW, x % 2 === 0 ? -this._rainDiff : 0);
       }
@@ -111,10 +163,6 @@ export class NyanMode {
       while (x--) {
         this._ctx.putImageData(this._rainbowData, x * this._rainbowW, x % 2 === 0 ? 0 : -this._rainDiff);
       }
-    }
-
-    if (this._i * this._rainbowW + this._imgWH.w >= this._cvs.width) {
-      this._i = -1;
     }
   }
 }

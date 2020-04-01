@@ -48,6 +48,7 @@ module.exports = {
   devServer: {
     port: 3000,
     progress: true,
-    contentBase: '.'
+    contentBase: '.',
+    hot: true
   }
 };
